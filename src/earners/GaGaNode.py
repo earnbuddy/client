@@ -1,6 +1,4 @@
-from email.policy import default
-
-from src.earners.Earner import EarnerBase
+from .Earner import EarnerBase
 
 
 class GaGaNode(EarnerBase):
