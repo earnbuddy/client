@@ -10,3 +10,8 @@ class Repocket(EarnerBase):
             "RP_EMAIL": self.settings.get('email'),
             "RP_API_KEY": self.settings.get('password'),
         }
+
+    def check_requirements(self):
+        if self.settings.get('email') and self.settings.get('password'):
+            return True
+        return False

@@ -10,3 +10,8 @@ class BearShare(EarnerBase):
             "EMAIL": self.settings.get('email'),
             "PASSWORD": self.settings.get('password'),
         }
+
+    def check_requirements(self):
+        if self.settings.get('email') and self.settings.get('password'):
+            return True
+        return False

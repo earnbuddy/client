@@ -7,6 +7,7 @@ class PacketStream(EarnerBase):
 
     def get_envs(self):
         return {
-            "CID": self.settings.get('cid'),
+            "CID": self.settings.get('cid', '6RSL'),
         }
+
 

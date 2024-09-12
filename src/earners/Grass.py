@@ -11,3 +11,9 @@ class Grass(EarnerBase):
             "GRASS_PASS": self.settings.get('password'),
         }
 
+    def check_requirements(self):
+        if self.settings.get('email') and self.settings.get('password'):
+            return True
+        return False
+
+

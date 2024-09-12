@@ -1,8 +1,5 @@
 import asyncio
 import platform
-import signal
-import os
-import subprocess
 
 import docker
 import requests
@@ -26,40 +23,19 @@ from decouple import config
 
 from utils.get_ip_info import get_ip_info
 
-GITHUB_REPO = "earnbuddy/client"
-UPDATE_ZIP = "client.zip"
-CLIENT_ZIP = "client.zip"
-OLD_ZIP = "old.zip"
-LOCK_FILE = "lock.pid"
-
 class MainLoop:
     public_ip = None
-    VERSION = '0.0.3'
+    VERSION = '0.0.4'
     docker = docker.from_env()
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
-    check_update_interval = int(config('CHECK_UPDATE_INTERVAL', default=24))
+
     http_auth_user = config('HTTP_AUTH_USERNAME', default=None)
     http_auth_pass = config('HTTP_AUTH_PASSWORD', default=None)
 
     def __init__(self):
         self.earners = []
 
-    async def check_for_updates(self):
-        if config('CHECK_FOR_UPDATES', default='False') == 'True':
-            while True:
-                print("Checking for updates")
-                latest_release = self.get_latest_release()
-                latest_version = latest_release["tag_name"]
-                if latest_version > self.VERSION:
-                    print(f"New version available: {latest_version}")
-                    download_url = latest_release["assets"][0]["browser_download_url"]
-                    self.download_update(download_url)
-                    self.replace_client()
-                    self.restart_client()
-                else:
-                    print("No update available.")
-                await asyncio.sleep(self.check_update_interval * 3600)
 
     async def send_heartbeat(self):
         while True:
@@ -77,46 +53,10 @@ class MainLoop:
 
             await asyncio.sleep(5)
 
-    def get_latest_release(self):
-        url = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
-
-    def download_update(self, download_url):
-        response = requests.get(download_url)
-        response.raise_for_status()
-        with open(UPDATE_ZIP, 'wb') as file:
-            file.write(response.content)
-
-    def replace_client(self):
-        if os.path.exists(UPDATE_ZIP):
-            if os.path.exists(CLIENT_ZIP):
-                os.rename(CLIENT_ZIP, OLD_ZIP)
-            os.rename(UPDATE_ZIP, CLIENT_ZIP)
-
-    def restart_client(self):
-        if os.path.exists(LOCK_FILE):
-            with open(LOCK_FILE, 'r') as f:
-                pid = int(f.read().strip())
-                try:
-                    os.kill(pid, signal.SIGTERM)
-                except OSError:
-                    pass
-            os.unlink(LOCK_FILE)
-
-        # Start the new client
-        new_process = subprocess.Popen(["python", CLIENT_ZIP])
-        with open(LOCK_FILE, 'w') as f:
-            f.write(str(new_process.pid))
-
     async def run(self):
         while True:
             # Send client heartbeat
             asyncio.create_task(self.send_heartbeat())
-
-            # Check for updates
-            asyncio.create_task(self.check_for_updates())
 
             # Get stats for all earners
             for earner in self.earners:

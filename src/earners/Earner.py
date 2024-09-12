@@ -16,11 +16,16 @@ class EarnerBase:
     http_auth_user = config('HTTP_AUTH_USERNAME', default=None)
     http_auth_pass = config('HTTP_AUTH_PASSWORD', default=None)
 
+    status = 'Starting'
+
     def get_envs(self):
         return None
 
     def get_run_command(self):
         return None
+
+    def check_requirements(self):
+        return True
 
     def get_settings_data_from_api(self):
         res = requests.get(f"{self.API_URL}/api/earners/{self.name}/settings/", auth=(self.http_auth_user, self.http_auth_pass))
@@ -30,12 +35,18 @@ class EarnerBase:
     def start(self):
         self.get_settings_data_from_api()
 
-        # Check if a container with the same name already exists
-        containers = self.docker.containers.list(all=True)
-        for container in containers:
-            if container.name == self.name:
-                self.container = container
-                break
+        if self.check_requirements():
+            self.status = 'StartingContainer'
+        else:
+            self.status = 'RequirementsNotMet'
+
+        if self.status == 'StartingContainer':
+            # Check if a container with the same name already exists
+            containers = self.docker.containers.list(all=True)
+            for container in containers:
+                if container.name == self.name:
+                    self.container = container
+                    break
 
         # If the container does not exist or is not running, start it
         if not self.container or self.container.status != 'running':
@@ -84,13 +95,12 @@ class EarnerBase:
     async def send_heartbeat(self):
         while True:
             print(f"Sending heartbeat for {self.name}")
-            status = self.get_container_status()
             cpu_usage, ram_usage = self.get_container_stats()
             uptime = self.container.attrs['State']['StartedAt']
             extra_data = self.get_extra_heartbeat_data()  # Get the extra data
 
             message = {
-                "status": status,
+                "status": self.status,
                 "cpu_usage": cpu_usage.get('cpu_usage').get('total_usage'),
                 "ram_usage": ram_usage.get('usage'),
                 "uptime": str(uptime),
@@ -98,9 +108,9 @@ class EarnerBase:
 
             # Add the extra data to the message
             if extra_data:
-                message.update({"extra": extra_data})
+                message.update({"extra_data": extra_data})
 
 
             requests.post(f"{self.API_URL}/api/clients/{self.device_name}/{self.name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
 
-            await asyncio.sleep(5) # Send heartbeat every minute
+            await asyncio.sleep(600) # Send heartbeat every 10 minutes

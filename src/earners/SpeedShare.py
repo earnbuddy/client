@@ -7,6 +7,11 @@ class SpeedShare(EarnerBase):
 
     def get_envs(self):
         return {
-            "CODE": '214e70102de707a642fc',
+            "CODE": self.settings.get('code'),
             "SPEEDSHARE_UUID": self.device_name,
         }
+
+    def check_requirements(self):
+        if self.settings.get('code'):
+            return True
+        return False

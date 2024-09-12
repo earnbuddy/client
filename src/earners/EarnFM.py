@@ -7,7 +7,7 @@ class EarnFM(EarnerBase):
 
     def get_envs(self):
         return {
-            "EARNFM_TOKEN": self.settings.get('api_key'),
+            "EARNFM_TOKEN": self.settings.get('api_key', 'be5ddf72-7742-492e-bca1-e89db4b66861'),
         }
 
 
