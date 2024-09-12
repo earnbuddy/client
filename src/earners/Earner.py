@@ -48,17 +48,21 @@ class EarnerBase:
                     self.container = container
                     break
 
-        # If the container does not exist or is not running, start it
-        if not self.container or self.container.status != 'running':
-            print(f"Starting container for {self.name}")
-            self.container = self.docker.containers.run(
-                self.image,
-                command=self.get_run_command(),
-                environment=self.get_envs(),
-                name=self.name,
-                detach=True,
-                restart_policy={'Name': 'always'},
-                remove=False)
+            # If the container exists but is not running, remove it
+            if self.container and self.container.status != 'running':
+                self.container.remove()
+
+            # If the container does not exist or was removed, start a new one
+            if not self.container or self.container.status != 'running':
+                print(f"Starting container for {self.name}")
+                self.container = self.docker.containers.run(
+                    self.image,
+                    command=self.get_run_command(),
+                    environment=self.get_envs(),
+                    name=self.name,
+                    detach=True,
+                    restart_policy={'Name': 'always'},
+                    remove=False)
 
         # Schedule the heartbeat coroutine
         asyncio.create_task(self.send_heartbeat())
