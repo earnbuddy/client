@@ -12,7 +12,7 @@ class EarnerBase:
     container = None
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
-    settings = None
+    settings = {}
     http_auth_user = config('HTTP_AUTH_USERNAME', default=None)
     http_auth_pass = config('HTTP_AUTH_PASSWORD', default=None)
 
@@ -24,7 +24,8 @@ class EarnerBase:
 
     def get_settings_data_from_api(self):
         res = requests.get(f"{self.API_URL}/api/earners/{self.name}/settings/", auth=(self.http_auth_user, self.http_auth_pass))
-        self.settings = res.json().get('settings')
+        if res.status_code == 200:
+            self.settings = res.json().get('settings')
 
     def start(self):
         self.get_settings_data_from_api()

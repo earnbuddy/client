@@ -3,7 +3,6 @@ import platform
 import signal
 import os
 import subprocess
-from email.policy import default
 
 import docker
 import requests
@@ -19,6 +18,10 @@ from earners.Repocket import Repocket
 from earners.SpeedShare import SpeedShare
 from earners.Traffmonetizer import Traffmonetizer
 from earners.PacketShare import PacketShare
+from earners.GaGaNode import GaGaNode
+from earners.BearShare import BearShare
+from earners.SpideNetwork import SpideNetwork
+
 from decouple import config
 
 from utils.get_ip_info import get_ip_info
@@ -31,7 +34,7 @@ LOCK_FILE = "lock.pid"
 
 class MainLoop:
     public_ip = None
-    VERSION = '0.0.1'
+    VERSION = '0.0.3'
     docker = docker.from_env()
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
@@ -156,5 +159,11 @@ if __name__ == '__main__':
         loop.earners.append(Traffmonetizer())
     if 'PacketShare' not in INGNORE_EARNERS:
         loop.earners.append(PacketShare())
+    if 'GaGaNode' not in INGNORE_EARNERS:
+        loop.earners.append(GaGaNode())
+    if 'BearShare' not in INGNORE_EARNERS:
+        loop.earners.append(BearShare())
+    if 'SpideNetwork' not in INGNORE_EARNERS:
+        loop.earners.append(SpideNetwork())
 
     asyncio.run(loop.run())
