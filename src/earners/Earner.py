@@ -13,6 +13,8 @@ class EarnerBase:
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
     settings = None
+    http_auth_user = config('HTTP_AUTH_USERNAME', default=None)
+    http_auth_pass = config('HTTP_AUTH_PASSWORD', default=None)
 
     def get_envs(self):
         return None
@@ -21,7 +23,7 @@ class EarnerBase:
         return None
 
     def get_settings_data_from_api(self):
-        res = requests.get(f"{self.API_URL}/api/earners/{self.name}/settings/")
+        res = requests.get(f"{self.API_URL}/api/earners/{self.name}/settings/", auth=(self.http_auth_user, self.http_auth_pass))
         self.settings = res.json().get('settings')
 
     def start(self):
@@ -98,6 +100,6 @@ class EarnerBase:
                 message.update({"extra": extra_data})
 
 
-            requests.post(f"{self.API_URL}/api/clients/{self.device_name}/{self.name}/heartbeat/", json=message)
+            requests.post(f"{self.API_URL}/api/clients/{self.device_name}/{self.name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
 
             await asyncio.sleep(5) # Send heartbeat every minute

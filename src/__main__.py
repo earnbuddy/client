@@ -35,6 +35,9 @@ class MainLoop:
     docker = docker.from_env()
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
+    check_update_interval = int(config('CHECK_UPDATE_INTERVAL', default=24))
+    http_auth_user = config('HTTP_AUTH_USERNAME', default=None)
+    http_auth_pass = config('HTTP_AUTH_PASSWORD', default=None)
 
     def __init__(self):
         self.earners = []
@@ -67,7 +70,7 @@ class MainLoop:
                 'docker_version': self.docker.version()['Version'],
                 'system_platform': platform.system()
             }
-            requests.post(f"{self.API_URL}/api/clients/{self.device_name}/heartbeat/", json=message)
+            requests.post(f"{self.API_URL}/api/clients/{self.device_name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
 
             await asyncio.sleep(5)
 
