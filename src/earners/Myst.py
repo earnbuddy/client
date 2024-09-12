@@ -1,4 +1,4 @@
-from src.earners.Earner import EarnerBase
+from .Earner import EarnerBase
 
 
 class Myst(EarnerBase):
