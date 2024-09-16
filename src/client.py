@@ -18,6 +18,7 @@ from earners.PacketShare import PacketShare
 from earners.GaGaNode import GaGaNode
 from earners.BearShare import BearShare
 from earners.SpideNetwork import SpideNetwork
+from earners.NodePay import NodePay
 
 from decouple import config
 
@@ -25,7 +26,7 @@ from utils.get_ip_info import get_ip_info
 
 class MainLoop:
     public_ip = None
-    VERSION = '0.0.5'
+    VERSION = '0.0.6'
     docker = docker.from_env()
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
@@ -105,5 +106,7 @@ if __name__ == '__main__':
         loop.earners.append(BearShare())
     if 'SpideNetwork' not in INGNORE_EARNERS:
         loop.earners.append(SpideNetwork())
+    if 'NodePay' not in INGNORE_EARNERS:
+        loop.earners.append(NodePay())
 
     asyncio.run(loop.run())
