@@ -30,14 +30,16 @@ class EarnerBase:
     def get_settings_data_from_api(self):
         res = requests.get(f"{self.API_URL}/api/earners/{self.name}/settings/", auth=(self.http_auth_user, self.http_auth_pass))
         if res.status_code == 200:
-            self.settings = res.json().get('settings')
+            self.settings = res.json()
 
     def start(self):
         self.get_settings_data_from_api()
 
         if self.check_requirements():
+            print(f"requirements met for {self.name}")
             self.status = 'StartingContainer'
         else:
+            print(f"requirements not met for {self.name}")
             self.status = 'RequirementsNotMet'
 
         if self.status == 'StartingContainer':
@@ -93,8 +95,9 @@ class EarnerBase:
     def get_container_stats(self):
         if self.container:
             stats = self.container.stats(stream=False)
-            return stats['cpu_stats'], stats['memory_stats']
-        return None, None
+            started = self.container.attrs['State']['StartedAt']
+            return stats['cpu_stats'], stats['memory_stats'], started
+        return None, None, None
 
     def get_extra_heartbeat_data(self):
         return {}
@@ -103,8 +106,7 @@ class EarnerBase:
         while True:
             print(f"Sending heartbeat for {self.name}")
             try:
-                cpu_usage, ram_usage = self.get_container_stats()
-                uptime = self.container.attrs['State']['StartedAt']
+                cpu_usage, ram_usage, uptime = self.get_container_stats()
                 extra_data = self.get_extra_heartbeat_data()  # Get the extra data
 
                 message = {
