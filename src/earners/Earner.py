@@ -43,13 +43,16 @@ class EarnerBase:
         if self.status == 'StartingContainer':
             # Check if a container with the same name already exists
             containers = self.docker.containers.list(all=True)
+            print(f"Checking for existing container for {self.name}")
             for container in containers:
                 if container.name == self.name:
+                    print(f"Found existing container for {self.name}")
                     self.container = container
                     break
 
             # If the container exists but is not running, remove it
             if self.container and self.container.status != 'running':
+                print(f"Removing container for {self.name}")
                 self.container.remove()
 
             # If the container does not exist or was removed, start a new one
@@ -99,22 +102,25 @@ class EarnerBase:
     async def send_heartbeat(self):
         while True:
             print(f"Sending heartbeat for {self.name}")
-            cpu_usage, ram_usage = self.get_container_stats()
-            uptime = self.container.attrs['State']['StartedAt']
-            extra_data = self.get_extra_heartbeat_data()  # Get the extra data
+            try:
+                cpu_usage, ram_usage = self.get_container_stats()
+                uptime = self.container.attrs['State']['StartedAt']
+                extra_data = self.get_extra_heartbeat_data()  # Get the extra data
 
-            message = {
-                "status": self.status,
-                "cpu_usage": cpu_usage.get('cpu_usage').get('total_usage'),
-                "ram_usage": ram_usage.get('usage'),
-                "uptime": str(uptime),
-            }
+                message = {
+                    "status": self.status,
+                    "cpu_usage": cpu_usage.get('cpu_usage').get('total_usage'),
+                    "ram_usage": ram_usage.get('usage'),
+                    "uptime": str(uptime),
+                }
 
-            # Add the extra data to the message
-            if extra_data:
-                message.update({"extra_data": extra_data})
+                # Add the extra data to the message
+                if extra_data:
+                    message.update({"extra_data": extra_data})
 
 
-            requests.post(f"{self.API_URL}/api/machines/{self.device_name}/{self.name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
+                requests.post(f"{self.API_URL}/api/machines/{self.device_name}/{self.name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
+            except Exception as e:
+                print(f"Error sending heartbeat for {self.name}: {e}")
 
             await asyncio.sleep(600) # Send heartbeat every 10 minutes
