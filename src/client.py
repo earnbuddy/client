@@ -26,7 +26,7 @@ from utils.get_ip_info import get_ip_info
 
 class MainLoop:
     public_ip = None
-    VERSION = '0.0.8'
+    VERSION = '0.0.9'
     docker = docker.from_env()
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
@@ -75,6 +75,9 @@ if __name__ == '__main__':
         exit(1)
 
     loop = MainLoop()
+    print(f"Starting EarnBuddy Client v{loop.VERSION}")
+    print(f"Device Name: {loop.device_name}")
+    print(f"API URL: {loop.API_URL}")
 
     # add the earners after checking if they are not in the IGNORE_EARNERS list
     INGNORE_EARNERS = config('IGNORE_EARNERS', default='').split(',')
