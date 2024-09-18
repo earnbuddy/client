@@ -115,6 +115,6 @@ class EarnerBase:
                 message.update({"extra_data": extra_data})
 
 
-            requests.post(f"{self.API_URL}/api/clients/{self.device_name}/{self.name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
+            requests.post(f"{self.API_URL}/api/machines/{self.device_name}/{self.name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
 
             await asyncio.sleep(600) # Send heartbeat every 10 minutes

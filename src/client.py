@@ -26,7 +26,7 @@ from utils.get_ip_info import get_ip_info
 
 class MainLoop:
     public_ip = None
-    VERSION = '0.0.6'
+    VERSION = '0.0.7'
     docker = docker.from_env()
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
@@ -50,7 +50,7 @@ class MainLoop:
                 'docker_version': self.docker.version()['Version'],
                 'system_platform': platform.system()
             }
-            requests.post(f"{self.API_URL}/api/clients/{self.device_name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
+            requests.post(f"{self.API_URL}/api/machines/{self.device_name}/heartbeat/", json=message, auth=(self.http_auth_user, self.http_auth_pass))
 
             await asyncio.sleep(60*30) # 30 minutes
 
