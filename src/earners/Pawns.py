@@ -26,6 +26,7 @@ class Pawns(EarnerBase):
         }
 
     def check_requirements(self):
-        if self.settings.get('email') and self.settings.get('password'):
-            return True
+        if self.settings:
+            if self.settings.get('email') and self.settings.get('password'):
+                return True
         return False

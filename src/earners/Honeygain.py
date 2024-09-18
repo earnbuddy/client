@@ -9,6 +9,7 @@ class Honeygain(EarnerBase):
         return f"-tou-accept -email '{self.settings.get('email')}' -pass '{self.settings.get('password')}' -device '{self.device_name}'"
 
     def check_requirements(self):
-        if self.settings.get('email') and self.settings.get('password'):
-            return True
+        if self.settings:
+            if self.settings.get('email') and self.settings.get('password'):
+                return True
         return False

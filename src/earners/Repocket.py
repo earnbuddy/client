@@ -12,6 +12,7 @@ class Repocket(EarnerBase):
         }
 
     def check_requirements(self):
-        if self.settings.get('email') and self.settings.get('api_key'):
-            return True
+        if self.settings:
+            if self.settings.get('email') and self.settings.get('api_key'):
+                return True
         return False

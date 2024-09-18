@@ -17,8 +17,6 @@ class ProxyRack(EarnerBase):
         }
 
     def get_extra_heartbeat_data(self):
-        print("ProxyRack: get_extra_heartbeat_data")
-        print("device_uuid: ", self.device_uuid)
         return {
             "uuid": self.device_uuid,
         }

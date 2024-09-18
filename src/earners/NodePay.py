@@ -6,8 +6,9 @@ class NodePay(EarnerBase):
     image = 'kellphy/nodepay'
 
     def check_requirements(self):
-        if self.settings.get('cookie'):
-            return True
+        if self.settings:
+            if self.settings.get('cookie'):
+                return True
         return False
 
     def get_envs(self):

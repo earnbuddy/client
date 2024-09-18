@@ -12,6 +12,7 @@ class SpeedShare(EarnerBase):
         }
 
     def check_requirements(self):
-        if self.settings.get('code'):
-            return True
+        if self.settings:
+            if self.settings.get('code'):
+                return True
         return False

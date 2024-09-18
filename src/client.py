@@ -26,7 +26,7 @@ from utils.get_ip_info import get_ip_info
 
 class MainLoop:
     public_ip = None
-    VERSION = '0.0.7'
+    VERSION = '0.0.8'
     docker = docker.from_env()
     device_name = config('DEVICE_NAME')
     API_URL = config('API_URL', default=None)
